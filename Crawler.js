@@ -17,11 +17,10 @@ async function salvar_tarefas(tarefas){
         user     : 'cadu',
         password : 'ka323212',
         database : 'tarefas',
-        timeout: 3000000
     });
     await connection.connect();
     const papeis = [];
-    connection.query("SHOW COLUMNS FROM Papéis;" , function (err, result){
+    await connection.query("SHOW COLUMNS FROM Papéis;" , function (err, result){
         if (err) throw err ;
         result.forEach(function (papel) {
             papeis.push(papel.Field);
@@ -29,7 +28,11 @@ async function salvar_tarefas(tarefas){
     });
     const equilibrio = ["Mental","Espiritual","Emocional","Físico"];
     const triade = ["Importante","Circunstancial","Urgente"];
-    tarefas.forEach(async function (tarefa) {
+    await connection.query("SET FOREIGN_KEY_CHECKS = 0",function (err, result){
+        if (err) console.log(err) ;
+        console.log("sucesso na desabilitação da checagem de foreign key");
+    });
+    await tarefas.forEach(async function (tarefa) {
         //adicionando a meta
         let tarefa_atual = shortid.generate();
         let meta_atual = shortid.generate();
@@ -70,7 +73,8 @@ async function salvar_tarefas(tarefas){
         }
         //equilibrio
         if(tasks_equilibrio.join().length >0) {
-            const query_equilibrio = "INSERT INTO Equilíbrio (equilibrio_oid,`" + tasks_equilibrio.join() + "`) VALUES ('" + equilibrio_atual + "','1');";
+            const quantidade_trues = repeatElement(1,tasks_equilibrio.length);
+            const query_equilibrio = "INSERT INTO Equilíbrio (equilibrio_oid," + tasks_equilibrio.join(`,`) + ") VALUES ('" + equilibrio_atual + "',"+ quantidade_trues.join() + ");";
             await connection.query(query_equilibrio, function (err, result) {
                 if (err) throw err;
                 console.log("Number of records inserted: "  + result.affectedRows);
@@ -87,14 +91,16 @@ async function salvar_tarefas(tarefas){
 
         //adicionando a tarefa
         const campos = ["Nome", "Duração","Data_término","tarefa_oid","equilibrio_oid","metas_oid","papeis_oid","triade_oid"];
-        const valores = [`'${tarefa.nome}'`,'30',`'${tarefa.data}'`,`'${tarefa_atual}'`,`'${equilibrio_atual}'`,`'${meta_atual}'`,`'${papeis_atual}'`,`'${triade_atual}'`];
+        const duracao = tarefa.nome.split('[')[1].substring(0,tarefa.nome.split('[').length + 1);
+        const valores = [`'${tarefa.nome}'`,`'${duracao}'`,`'${tarefa.data}'`,`'${tarefa_atual}'`,`'${equilibrio_atual}'`,`'${meta_atual}'`,`'${papeis_atual}'`,`'${triade_atual}'`];
         const query_tarefa = "INSERT INTO Tarefa (" + campos.join() +  ") VALUES (" + valores.join() + ") ;";
         await connection.query(query_tarefa , function (err, result){
             if (err) throw err ;
             console.log("Number of records inserted: " + result.affectedRows);
         });
-
-    })
+    });
+    await sleep(10000);
+    connection.end();
 }
 
 
@@ -141,11 +147,10 @@ async function ler_tarefas() {
                     element.getText()
                         .then(function (text) {
                             let propriedadesTarefa = text.split("\n");
-                            let data = propriedadesTarefa[0];
-                            let  nome = propriedadesTarefa[1];
-                            let tasks = propriedadesTarefa[2];
-                            let projeto = propriedadesTarefa[3];
-                            let tarefa = new Tarefa(data,nome,tasks,projeto);
+                            let nome = propriedadesTarefa[0];
+                            let  tasks = propriedadesTarefa[1];
+                            let projeto = propriedadesTarefa[2];
+                            let tarefa = new Tarefa(nome,tasks,projeto);
                             lista_tarefas.push(tarefa);
                         });
                 })
@@ -168,6 +173,13 @@ function isInside(element,array){
         }
     });
     return isEqual;
+}
+function repeatElement(element, numero){
+    let array = [];
+    for(let i =0;i< numero ;i++){
+        array.push(element);
+    }
+    return array;
 }
 
 ler_tarefas();

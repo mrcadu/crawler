@@ -1,6 +1,6 @@
 module.exports =  class Tarefa{
-    constructor(data,nome,tasks,projeto) {
-        this.data = data;
+
+    constructor(nome,tasks,projeto) {
         this.nome = nome;
         this.tasks = tasks;
         this.projeto = projeto;
