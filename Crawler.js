@@ -82,7 +82,8 @@ async function salvar_tarefas(tarefas){
         }
         //papeis
         if(tasks_papeis.length>0) {
-            const query_papeis = "INSERT INTO Papéis (papeis_oid,`" + tasks_papeis.join() + "`) VALUES ('" + papeis_atual + "','1');";
+            const quantidade_trues = repeatElement(1,tasks_papeis.length);
+            const query_papeis = "INSERT INTO Papéis (papeis_oid,`" + tasks_papeis.join() + "`) VALUES ('"+ quantidade_trues.join() + "','1');";
             await connection.query(query_papeis, function (err, result) {
                 if (err) throw err;
                 console.log("Number of records inserted: "  + result.affectedRows);
@@ -147,11 +148,16 @@ async function ler_tarefas() {
                     element.getText()
                         .then(function (text) {
                             let propriedadesTarefa = text.split("\n");
-                            let nome = propriedadesTarefa[0];
-                            let  tasks = propriedadesTarefa[1];
-                            let projeto = propriedadesTarefa[2];
-                            let tarefa = new Tarefa(nome,tasks,projeto);
-                            lista_tarefas.push(tarefa);
+                            let nome;
+                            let tasks;
+                            let projeto;
+                            if(propriedadesTarefa.size === 3) {
+                                nome = propriedadesTarefa[0];
+                                tasks = propriedadesTarefa[1];
+                                projeto = propriedadesTarefa[2];
+                                let tarefa = new Tarefa(nome,tasks,projeto);
+                                lista_tarefas.push(tarefa);
+                            }
                         });
                 })
             });
@@ -163,7 +169,7 @@ async function ler_tarefas() {
     }
     console.log("tarefas adicionadas:" +  lista_tarefas.length);
     await salvar_tarefas(lista_tarefas);
-    return lista_tarefas;
+    //return lista_tarefas;
 }
 function isInside(element,array){
     let isEqual = false;
