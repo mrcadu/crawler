@@ -20,7 +20,7 @@ async function salvar_tarefas(tarefas){
     });
     await connection.connect();
     const papeis = [];
-    await connection.query("SHOW COLUMNS FROM Papéis;" , function (err, result){
+    await connection.query("SHOW COLUMNS FROM papeis;" , function (err, result){
         if (err) throw err ;
         result.forEach(function (papel) {
             papeis.push(papel.Field);
@@ -39,7 +39,7 @@ async function salvar_tarefas(tarefas){
         let triade_atual = shortid.generate();
         let equilibrio_atual = shortid.generate();
         let papeis_atual = shortid.generate();
-        const query = "INSERT INTO Metas (metas_oid,`"+ tarefa.projeto +"`) VALUES ('" + meta_atual+ "','1');";
+        const query = "INSERT INTO metas (metas_oid,`"+ tarefa.projeto +"`) VALUES ('" + meta_atual+ "','1');";
         await connection.query(query , function (err, result){
            if (err) throw err ;
            console.log("Number of records inserted: "  + result.affectedRows)
@@ -65,7 +65,7 @@ async function salvar_tarefas(tarefas){
         //triade
         if(tasks_triade.join().length >0) {
             tasks_triade.join();
-            const query_triade = "INSERT INTO Tríade (triade_oid,`" + tasks_triade.join() + "`) VALUES ('" + triade_atual + "','1');";
+            const query_triade = "INSERT INTO triade (triade_oid,`" + tasks_triade.join() + "`) VALUES ('" + triade_atual + "','1');";
             await connection.query(query_triade, function (err, result) {
                 if (err) throw err;
                 console.log("Number of records inserted: "  + result.affectedRows);
@@ -74,7 +74,7 @@ async function salvar_tarefas(tarefas){
         //equilibrio
         if(tasks_equilibrio.join().length >0) {
             const quantidade_trues = repeatElement(1,tasks_equilibrio.length);
-            const query_equilibrio = "INSERT INTO Equilíbrio (equilibrio_oid," + tasks_equilibrio.join(`,`) + ") VALUES ('" + equilibrio_atual + "',"+ quantidade_trues.join() + ");";
+            const query_equilibrio = "INSERT INTO equilibrio (equilibrio_oid," + tasks_equilibrio.join(`,`) + ") VALUES ('" + equilibrio_atual + "',"+ quantidade_trues.join() + ");";
             await connection.query(query_equilibrio, function (err, result) {
                 if (err) throw err;
                 console.log("Number of records inserted: "  + result.affectedRows);
@@ -83,7 +83,7 @@ async function salvar_tarefas(tarefas){
         //papeis
         if(tasks_papeis.length>0) {
             const quantidade_trues = repeatElement(1,tasks_papeis.length);
-            const query_papeis = "INSERT INTO Papéis (papeis_oid,`" + tasks_papeis.join() + "`) VALUES ('"+ quantidade_trues.join() + "','1');";
+            const query_papeis = "INSERT INTO papeis (papeis_oid,`" + tasks_papeis.join() + "`) VALUES ('"+ quantidade_trues.join() + "','1');";
             await connection.query(query_papeis, function (err, result) {
                 if (err) throw err;
                 console.log("Number of records inserted: "  + result.affectedRows);
@@ -151,7 +151,7 @@ async function ler_tarefas() {
                             let nome;
                             let tasks;
                             let projeto;
-                            if(propriedadesTarefa.size === 3) {
+                            if(propriedadesTarefa.length === 3) {
                                 nome = propriedadesTarefa[0];
                                 tasks = propriedadesTarefa[1];
                                 projeto = propriedadesTarefa[2];
@@ -162,7 +162,7 @@ async function ler_tarefas() {
                 })
             });
 	console.log("tarefas adicionadas com sucesso!");
-        await driver.wait(until.titleIs('Todoist'), 1000);
+        await driver.wait(until.titleIs('Hoje: Todoist'), 1000);
     } finally {
         await driver.quit();
 	console.log("navegador fechado com sucesso");
