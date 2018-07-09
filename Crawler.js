@@ -91,10 +91,10 @@ async function salvar_tarefas(tarefas){
         }
 
         //adicionando a tarefa
-        const campos = ["Nome", "Duração","Data_término","tarefa_oid","equilibrio_oid","metas_oid","papeis_oid","triade_oid"];
+        const campos = ["Nome", "Duração","Data_término","tarefas_oid","equilibrio_oid","metas_oid","papeis_oid","triade_oid"];
         const duracao = tarefa.nome.split('[')[1].substring(0,tarefa.nome.split('[').length + 1);
         const valores = [`'${tarefa.nome}'`,`'${duracao}'`,`'${tarefa.data}'`,`'${tarefa_atual}'`,`'${equilibrio_atual}'`,`'${meta_atual}'`,`'${papeis_atual}'`,`'${triade_atual}'`];
-        const query_tarefa = "INSERT INTO Tarefa (" + campos.join() +  ") VALUES (" + valores.join() + ") ;";
+        const query_tarefa = "INSERT INTO tarefas (" + campos.join() +  ") VALUES (" + valores.join() + ") ;";
         await connection.query(query_tarefa , function (err, result){
             if (err) throw err ;
             console.log("Number of records inserted: " + result.affectedRows);
